@@ -8,199 +8,13 @@
 <style type="text/css">
 @font-face {
 	font-family: digit;
-	src: url('https://fonts.gstatic.com/s/digital7/v14/j8_z6o3rY6pFQ82_5YzQ.woff2') format('woff2');
-}
-
-* {
-	margin: 0;
-	padding: 0;
-}
-
-body {
-	background: #e8f5e9; /* Light green background */
-	color: #555;
-	font-family: Arial, sans-serif;
-	overflow-x: hidden;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	min-height: 100vh;
-}
-
-#mainDiv {
-	width: 100%;
-	max-width: 1000px;
-	margin: 0 auto;
-	padding: 20px;
-	box-sizing: border-box;
-}
-
-#content {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	gap: 40px;
-}
-
-#code {
-	background: rgba(255, 255, 255, 0.8);
-	padding: 20px;
-	border-radius: 10px;
-	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-	max-width: 500px;
-	line-height: 1.6;
-	font-size: 16px;
-	flex: 1;
-	min-width: 300px;
-}
-
-.comments {
-	color: #2e7d32; /* Dark green for comments */
-	font-weight: bold;
-}
-
-.space {
-	margin-left: 20px;
-}
-
-#heartspan {
-	display: block;
-	text-align: center;
-	margin: 20px 0;
-	position: relative;
-}
-
-#icon {
-	color: #ff3366;
-	font-size: 40px;
-	transition: transform 0.3s, color 0.3s;
-	cursor: pointer;
-	z-index: 10;
-	position: relative;
-}
-
-#icon:hover {
-	transform: scale(1.3);
-	color: #e91e63;
-}
-
-/* Heart animation container */
-.heart-animation {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	width: 100px;
-	height: 100px;
-	pointer-events: none;
-	opacity: 0;
-	transition: opacity 0.3s;
-	z-index: 1;
-}
-
-#heartspan:hover .heart-animation {
-	opacity: 1;
-}
-
-.heart-particle {
-	position: absolute;
-	width: 10px;
-	height: 10px;
-	background: #ff3366;
-	border-radius: 50%;
-	opacity: 0;
-}
-
-#loveHeart {
-	position: relative;
-	width: 400px;
-	height: 400px;
-	flex-shrink: 0;
-}
-
-#garden {
-	width: 100%;
-	height: 100%;
-}
-
-#words {
-	position: absolute;
-	width: 100%;
-	top: 50%;
-	left: 0;
-	transform: translateY(-50%);
-	text-align: center;
-	color: #2e7d32; /* Dark green for text */
-}
-
-#messages {
-	font-size: 24px;
-	margin-bottom: 20px;
-	font-weight: bold;
-}
-
-#elapseClock {
-	font-family: digit, monospace;
-	font-size: 18px;
-	margin-top: 10px;
-	color: #333;
-}
-
-#loveu {
-	font-size: 20px;
-	margin-top: 20px;
-}
-
-.signature {
-	margin-top: 10px;
-	font-size: 16px;
-	font-style: italic;
-}
-
-/* Typewriter effect */
-.typed-cursor {
-	opacity: 1;
-	animation: blink 0.7s infinite;
-}
-
-@keyframes blink {
-	0% { opacity: 1; }
-	50% { opacity: 0; }
-	100% { opacity: 1; }
-}
-
-/* Responsive adjustments */
-@media (max-width: 900px) {
-	#content {
-		flex-direction: column;
-		align-items: center;
-	}
-	
-	#loveHeart {
-		width: 300px;
-		height: 300px;
-	}
-}
-
-@media (max-width: 500px) {
-	#code {
-		font-size: 14px;
-	}
-	
-	#loveHeart {
-		width: 250px;
-		height: 250px;
-	}
-	
-	#messages {
-		font-size: 18px;
-	}
-	
-	#loveu {
-		font-size: 16px;
-	}
+	src: url('digital-7_mono.ttf') format("truetype");
 }
 </style>
+<link href="css/default.css" type="text/css" rel="stylesheet">
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/garden.jaxs"></script>
+<script type="text/javascript" src="js/functions.js"></script>
 
 </head>
 
@@ -237,8 +51,7 @@ body {
 			Now If you want my arms around your shoulder you can touch the heart below<br />
 			<br>
 			<span id="heartspan">
-				<a href="image.jpg"><i class="fas fa-heart" id="icon"></i></a>
-				<div class="heart-animation" id="heartAnimation"></div>
+			<a href="image.jpg"><i class="fas fa-heart" id="icon"></i></a>
 			</span>
 		</div>
 		<div id="loveHeart">
@@ -258,216 +71,37 @@ body {
 </div>
 
 <script type="text/javascript">
-// Heart animation for the main canvas
-function startHeartAnimation() {
-    const canvas = document.getElementById('garden');
-    const ctx = canvas.getContext('2d');
-    
-    // Set canvas size
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    
-    const heartColors = ['#2e7d32', '#4caf50', '#81c784']; // Green color palette
-    const hearts = [];
-    
-    // Create heart particles
-    for (let i = 0; i < 30; i++) {
-        hearts.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 10 + 5,
-            speed: Math.random() * 1 + 0.5,
-            color: heartColors[Math.floor(Math.random() * heartColors.length)],
-            opacity: Math.random() * 0.5 + 0.5
-        });
-    }
-    
-    function drawHeart(ctx, x, y, size, color) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.translate(x, y);
-        
-        // Draw heart shape
-        ctx.moveTo(0, 0);
-        ctx.bezierCurveTo(-size/2, -size/2, -size, size/3, 0, size);
-        ctx.bezierCurveTo(size, size/3, size/2, -size/2, 0, 0);
-        
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.restore();
-    }
-    
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        hearts.forEach(heart => {
-            heart.y -= heart.speed;
-            if (heart.y < -20) {
-                heart.y = canvas.height + 20;
-                heart.x = Math.random() * canvas.width;
-            }
-            
-            drawHeart(ctx, heart.x, heart.y, heart.size, heart.color);
-        });
-        
-        requestAnimationFrame(animate);
-    }
-    
-    animate();
-    
-    // Handle window resize
-    window.addEventListener('resize', function() {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-    });
-}
+var offsetX = $("#loveHeart").width() / 2;
+var offsetY = $("#loveHeart").height() / 2 - 55;
+var together = new Date();
+together.setFullYear(2025, 8, 9);
+together.setHours(17);
+together.setMinutes(30);
+together.setSeconds(0);
+together.setMilliseconds(0);
 
-// Hover heart animation
-function createHoverHeartAnimation() {
-    const heartSpan = document.getElementById('heartspan');
-    const heartAnimation = document.getElementById('heartAnimation');
-    
-    heartSpan.addEventListener('mouseenter', function() {
-        // Clear previous particles
-        heartAnimation.innerHTML = '';
-        
-        // Create new particles
-        for (let i = 0; i < 20; i++) {
-            const particle = document.createElement('div');
-            particle.classList.add('heart-particle');
-            heartAnimation.appendChild(particle);
-            
-            // Random position around the heart
-            const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * 40 + 20;
-            const startX = 50 + Math.cos(angle) * distance;
-            const startY = 50 + Math.sin(angle) * distance;
-            
-            // Random size and color
-            const size = Math.random() * 8 + 4;
-            const colors = ['#ff3366', '#e91e63', '#ff6699', '#ff99cc'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            
-            // Set initial properties
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
-            particle.style.background = color;
-            particle.style.left = `${startX}px`;
-            particle.style.top = `${startY}px`;
-            
-            // Animate the particle
-            const animation = particle.animate([
-                { 
-                    transform: 'translate(0, 0) scale(1)',
-                    opacity: 1
-                },
-                { 
-                    transform: `translate(${Math.cos(angle) * 60}px, ${Math.sin(angle) * 60}px) scale(0)`,
-                    opacity: 0
-                }
-            ], {
-                duration: 1000 + Math.random() * 500,
-                easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)',
-                fill: 'forwards'
-            });
-            
-            // Remove particle after animation completes
-            animation.onfinish = function() {
-                particle.remove();
-            };
-        }
-    });
-}
+if (!document.createElement('canvas').getContext) {
+	var msg = document.createElement("div");
+	msg.id = "errorMsg";
+	msg.innerHTML = "Your browser doesn't support HTML5!<br/>Recommend use Chrome 14+/IE 9+/Firefox 7+/Safari 4+"; 
+	document.body.appendChild(msg);
+	$("#code").css("display", "none")
+	$("#copyright").css("position", "absolute");
+	$("#copyright").css("bottom", "10px");
+	document.execCommand("stop");
+} else {
+	setTimeout(function () {
+		startHeartAnimation();
+	}, 5000);
 
-// Time elapsed calculation
-function timeElapse(togetherDate) {
-    const now = new Date();
-    const diff = now - togetherDate;
-    
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    
-    document.getElementById("elapseClock").innerHTML = 
-        `<span>${days}</span> days <span>${hours}</span> hours <span>${minutes}</span> minutes <span>${seconds}</span> seconds`;
-}
+	timeElapse(together);
+	setInterval(function () {
+		timeElapse(together);
+	}, 500);
 
-// Typewriter effect
-function typeWriter(element, speed) {
-    const text = element.innerHTML;
-    element.innerHTML = '';
-    
-    let i = 0;
-    function type() {
-        if (i < text.length) {
-            element.innerHTML += text.charAt(i);
-            i++;
-            setTimeout(type, speed);
-        } else {
-            // Add blinking cursor after typing is complete
-            element.innerHTML += '<span class="typed-cursor">|</span>';
-        }
-    }
-    type();
+	adjustCodePosition();
+	$("#code").typewriter();
 }
-
-// Adjust code position for responsiveness
-function adjustCodePosition() {
-    const codeElement = document.getElementById('code');
-    const loveHeartElement = document.getElementById('loveHeart');
-    
-    if (window.innerWidth < 900) {
-        codeElement.style.order = '1';
-        loveHeartElement.style.order = '2';
-    } else {
-        codeElement.style.order = '';
-        loveHeartElement.style.order = '';
-    }
-}
-
-// Initialize everything when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    const together = new Date();
-    together.setFullYear(2025, 8, 9); // Note: months are 0-indexed, so 8 = September
-    together.setHours(17);
-    together.setMinutes(30);
-    together.setSeconds(0);
-    together.setMilliseconds(0);
-    
-    // Start animations
-    startHeartAnimation();
-    createHoverHeartAnimation();
-    
-    // Update time elapsed
-    timeElapse(together);
-    setInterval(function() {
-        timeElapse(together);
-    }, 1000);
-    
-    // Apply typewriter effect
-    const codeElement = document.getElementById('code');
-    const originalHTML = codeElement.innerHTML;
-    typeWriter(codeElement, 50);
-    
-    // Handle heart click
-    document.getElementById('icon').addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('I love you too, Ankuji! ❤️');
-    });
-    
-    // Adjust layout for responsiveness
-    adjustCodePosition();
-    window.addEventListener('resize', adjustCodePosition);
-    
-    // Fallback for older browsers
-    if (!document.createElement('canvas').getContext) {
-        const msg = document.createElement("div");
-        msg.id = "errorMsg";
-        msg.innerHTML = "Your browser doesn't support all features of this page!<br/>For best experience, use a modern browser.";
-        document.body.appendChild(msg);
-    }
-});
 </script>
 </body>
 </html>
