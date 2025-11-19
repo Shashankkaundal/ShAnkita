@@ -76,59 +76,63 @@ function startHeartAnimation() {
             var $ele = $(this), str = $ele.html(), progress = 0;
             $ele.html('');
             
-            // Create audio context for typewriter sound
-            var audioContext = null;
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            } catch (e) {
-                console.log('Web Audio API not supported');
-            }
+            // Array of keyboard click sounds (using free sound URLs)
+            var keySounds = [
+                'https://assets.mixkit.co/active_storage/sfx/279/279-preview.mp3',
+                'https://assets.mixkit.co/active_storage/sfx/280/280-preview.mp3', 
+                'https://assets.mixkit.co/active_storage/sfx/281/281-preview.mp3',
+                'https://assets.mixkit.co/active_storage/sfx/282/282-preview.mp3'
+            ];
             
-            function playTypeSound() {
-                if (!audioContext) return;
-                
+            // Preload sounds
+            var audioBuffers = [];
+            var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            function playRandomKeySound() {
                 try {
+                    // Create a simple click sound as fallback
                     var oscillator = audioContext.createOscillator();
                     var gainNode = audioContext.createGain();
                     
                     oscillator.connect(gainNode);
                     gainNode.connect(audioContext.destination);
                     
-                    // Typewriter-like sound
-                    oscillator.type = 'square';
-                    oscillator.frequency.setValueAtTime(100 + Math.random() * 50, audioContext.currentTime);
+                    // Realistic mechanical keyboard sound
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(80 + Math.random() * 60, audioContext.currentTime);
                     
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.08);
+                    // Very short, sharp envelope
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.03);
                     
                     oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.08);
+                    oscillator.stop(audioContext.currentTime + 0.03);
+                    
                 } catch (e) {
                     console.log('Sound error:', e);
                 }
             }
-            
+
             var timer = setInterval(function() {
                 var current = str.substr(progress, 1);
-                var nextChar = str.substr(progress + 1, 1);
                 
                 if (current == '<') {
                     progress = str.indexOf('>', progress) + 1;
                 } else {
                     progress++;
-                    // Play sound for visible characters (not spaces, not HTML tags)
-                    if (current !== ' ' && current !== '>' && current !== '\n' && current !== '<') {
-                        playTypeSound();
+                    // Play sound for visible characters
+                    if (current !== ' ' && current !== '>' && current !== '<' && current.trim() !== '') {
+                        playRandomKeySound();
                     }
                 }
                 
-                // Update content with cursor
                 $ele.html(str.substring(0, progress) + (progress < str.length ? '_' : ''));
                 
                 if (progress >= str.length) {
                     clearInterval(timer);
-                    // Remove cursor when finished
-                    $ele.html(str);
+                    setTimeout(function() {
+                        $ele.html(str);
+                    }, 500);
                 }
             }, 75);
         });
