@@ -71,14 +71,35 @@ function startHeartAnimation() {
 }
 
 (function($) {
-    $.fn.typewriter = function(soundUrl) {
+    $.fn.typewriter = function() {
         this.each(function() {
             var $ele = $(this), str = $ele.html(), progress = 0;
             $ele.html('');
             
-            // Preload typewriter sound
-            var typeSound = new Audio(soundUrl || 'https://assets.mixkit.co/active_storage/sfx/281/281-preview.mp3');
-            typeSound.volume = 0.3;
+            // Create audio context for typewriter sound
+            var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            function playTypeSound() {
+                try {
+                    var oscillator = audioContext.createOscillator();
+                    var gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    // Typewriter-like sound properties
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(120 + Math.random() * 80, audioContext.currentTime);
+                    
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.05);
+                } catch (e) {
+                    console.log('Audio context error:', e);
+                }
+            }
             
             var timer = setInterval(function() {
                 var current = str.substr(progress, 1);
@@ -88,8 +109,7 @@ function startHeartAnimation() {
                     progress++;
                     // Play sound only for visible characters (not HTML tags)
                     if (current !== '>' && current.trim() !== '') {
-                        typeSound.currentTime = 0;
-                        typeSound.play().catch(e => console.log('Audio play failed:', e));
+                        playTypeSound();
                     }
                 }
                 $ele.html(str.substring(0, progress) + (progress & 1 ? '_' : ''));
@@ -101,7 +121,6 @@ function startHeartAnimation() {
         return this;
     };
 })(jQuery);
-
 function timeElapse(date){
 	var current = Date();
 	var seconds = (Date.parse(current) - Date.parse(date)) / 1000;
