@@ -70,74 +70,26 @@ function startHeartAnimation() {
 	}, interval);
 }
 
-(function($) {
-    $.fn.typewriter = function() {
-        this.each(function() {
-            var $ele = $(this), str = $ele.html(), progress = 0;
-            $ele.html('');
-            
-            // Array of keyboard click sounds (using free sound URLs)
-            var keySounds = [
-                'https://assets.mixkit.co/active_storage/sfx/279/279-preview.mp3',
-                'https://assets.mixkit.co/active_storage/sfx/280/280-preview.mp3', 
-                'https://assets.mixkit.co/active_storage/sfx/281/281-preview.mp3',
-                'https://assets.mixkit.co/active_storage/sfx/282/282-preview.mp3'
-            ];
-            
-            // Preload sounds
-            var audioBuffers = [];
-            var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
-            function playRandomKeySound() {
-                try {
-                    // Create a simple click sound as fallback
-                    var oscillator = audioContext.createOscillator();
-                    var gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    // Realistic mechanical keyboard sound
-                    oscillator.type = 'sine';
-                    oscillator.frequency.setValueAtTime(80 + Math.random() * 60, audioContext.currentTime);
-                    
-                    // Very short, sharp envelope
-                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.03);
-                    
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.03);
-                    
-                } catch (e) {
-                    console.log('Sound error:', e);
-                }
-            }
-
-            var timer = setInterval(function() {
-                var current = str.substr(progress, 1);
-                
-                if (current == '<') {
-                    progress = str.indexOf('>', progress) + 1;
-                } else {
-                    progress++;
-                    // Play sound for visible characters
-                    if (current !== ' ' && current !== '>' && current !== '<' && current.trim() !== '') {
-                        playRandomKeySound();
-                    }
-                }
-                
-                $ele.html(str.substring(0, progress) + (progress < str.length ? '_' : ''));
-                
-                if (progress >= str.length) {
-                    clearInterval(timer);
-                    setTimeout(function() {
-                        $ele.html(str);
-                    }, 500);
-                }
-            }, 75);
-        });
-        return this;
-    };
+function($) {
+	$.fn.typewriter = function() {
+		this.each(function() {
+			var $ele = $(this), str = $ele.html(), progress = 0;
+			$ele.html('');
+			var timer = setInterval(function() {
+				var current = str.substr(progress, 1);
+				if (current == '<') {
+					progress = str.indexOf('>', progress) + 1;
+				} else {
+					progress++;
+				}
+				$ele.html(str.substring(0, progress) + (progress & 1 ? '_' : ''));
+				if (progress >= str.length) {
+					clearInterval(timer);
+				}
+			}, 75);
+		});
+		return this;
+	};
 })(jQuery);
 function timeElapse(date){
 	var current = Date();
