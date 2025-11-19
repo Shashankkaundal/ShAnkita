@@ -134,3 +134,199 @@ function adjustCodePosition() {
 function showLoveU() {
 	$('#loveu').fadeIn(3000);
 }
+// Heart animation that creates hearts at pointer locations
+function initHeartTrail() {
+    // Create a container for the hearts
+    const heartContainer = document.createElement('div');
+    heartContainer.id = 'heart-trail-container';
+    heartContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+    `;
+    document.body.appendChild(heartContainer);
+
+    // Heart colors
+    const heartColors = ['#ff3366', '#e91e63', '#ff6699', '#ff99cc', '#2e7d32', '#4caf50'];
+    
+    // Track mouse movement
+    let mouseX = 0;
+    let mouseY = 0;
+    let heartCreationEnabled = true;
+    
+    document.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        
+        if (heartCreationEnabled) {
+            createHeartAtPosition(mouseX, mouseY);
+            
+            // Throttle heart creation
+            heartCreationEnabled = false;
+            setTimeout(() => {
+                heartCreationEnabled = true;
+            }, 100); // Create hearts every 100ms
+        }
+    });
+    
+    // Also create hearts on touch devices
+    document.addEventListener('touchmove', function(e) {
+        const touch = e.touches[0];
+        mouseX = touch.clientX;
+        mouseY = touch.clientY;
+        
+        if (heartCreationEnabled) {
+            createHeartAtPosition(mouseX, mouseY);
+            
+            // Throttle heart creation
+            heartCreationEnabled = false;
+            setTimeout(() => {
+                heartCreationEnabled = true;
+            }, 150);
+        }
+    });
+    
+    function createHeartAtPosition(x, y) {
+        const heart = document.createElement('div');
+        heart.innerHTML = '❤️';
+        heart.style.cssText = `
+            position: absolute;
+            left: ${x}px;
+            top: ${y}px;
+            font-size: ${Math.random() * 20 + 15}px;
+            color: ${heartColors[Math.floor(Math.random() * heartColors.length)]};
+            pointer-events: none;
+            user-select: none;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+            transition: all 0.8s ease-out;
+            z-index: 9999;
+        `;
+        
+        heartContainer.appendChild(heart);
+        
+        // Trigger animation
+        requestAnimationFrame(() => {
+            heart.style.transform = `translate(-50%, -50%) scale(1) translateY(-${Math.random() * 50 + 30}px)`;
+            heart.style.opacity = '0.8';
+        });
+        
+        // Remove heart after animation
+        setTimeout(() => {
+            heart.style.opacity = '0';
+            heart.style.transform = `translate(-50%, -50%) scale(0.5) translateY(-${Math.random() * 100 + 50}px)`;
+            
+            setTimeout(() => {
+                if (heart.parentNode) {
+                    heart.parentNode.removeChild(heart);
+                }
+            }, 800);
+        }, 1000);
+    }
+    
+    // Alternative: Create hearts on click/tap
+    document.addEventListener('click', function(e) {
+        createHeartBurst(e.clientX, e.clientY);
+    });
+    
+    document.addEventListener('touchend', function(e) {
+        const touch = e.changedTouches[0];
+        createHeartBurst(touch.clientX, touch.clientY);
+    });
+    
+    function createHeartBurst(x, y) {
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => {
+                createHeartAtPosition(
+                    x + (Math.random() - 0.5) * 50,
+                    y + (Math.random() - 0.5) * 50
+                );
+            }, i * 50);
+        }
+    }
+    
+    console.log('Heart trail animation initialized!');
+}
+
+// Enhanced version with floating hearts
+function initFloatingHearts() {
+    const heartContainer = document.getElementById('heart-trail-container') || document.body;
+    
+    function createFloatingHeart() {
+        const heart = document.createElement('div');
+        heart.innerHTML = '❤️';
+        const size = Math.random() * 25 + 15;
+        const startX = Math.random() * window.innerWidth;
+        
+        heart.style.cssText = `
+            position: fixed;
+            left: ${startX}px;
+            top: ${window.innerHeight + 50}px;
+            font-size: ${size}px;
+            color: ${['#ff3366', '#e91e63', '#ff6699'][Math.floor(Math.random() * 3)]};
+            pointer-events: none;
+            user-select: none;
+            opacity: ${Math.random() * 0.6 + 0.2};
+            z-index: 9998;
+            transform: scale(0);
+            transition: transform 0.3s ease-out;
+        `;
+        
+        heartContainer.appendChild(heart);
+        
+        // Animate in
+        setTimeout(() => {
+            heart.style.transform = 'scale(1)';
+        }, 10);
+        
+        // Floating animation
+        const duration = Math.random() * 10000 + 8000;
+        const endX = startX + (Math.random() - 0.5) * 200;
+        
+        const animation = heart.animate([
+            { 
+                transform: `translate(0, 0) scale(1)`,
+                opacity: heart.style.opacity
+            },
+            { 
+                transform: `translate(${endX - startX}px, -${window.innerHeight + 100}px) scale(0.5)`,
+                opacity: 0
+            }
+        ], {
+            duration: duration,
+            easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+            fill: 'forwards'
+        });
+        
+        animation.onfinish = () => {
+            if (heart.parentNode) {
+                heart.parentNode.removeChild(heart);
+            }
+        };
+    }
+    
+    // Create floating hearts periodically
+    setInterval(createFloatingHeart, 2000);
+    
+    // Create initial floating hearts
+    for (let i = 0; i < 5; i++) {
+        setTimeout(createFloatingHeart, i * 500);
+    }
+}
+
+// Initialize both effects
+function initAllHeartAnimations() {
+    initHeartTrail();
+    initFloatingHearts();
+}
+
+// Export functions for use in HTML
+window.HeartAnimations = {
+    initHeartTrail,
+    initFloatingHearts,
+    initAllHeartAnimations
+};
