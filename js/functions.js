@@ -77,9 +77,16 @@ function startHeartAnimation() {
             $ele.html('');
             
             // Create audio context for typewriter sound
-            var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            var audioContext = null;
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.log('Web Audio API not supported');
+            }
             
             function playTypeSound() {
+                if (!audioContext) return;
+                
                 try {
                     var oscillator = audioContext.createOscillator();
                     var gainNode = audioContext.createGain();
@@ -87,34 +94,41 @@ function startHeartAnimation() {
                     oscillator.connect(gainNode);
                     gainNode.connect(audioContext.destination);
                     
-                    // Typewriter-like sound properties
+                    // Typewriter-like sound
                     oscillator.type = 'square';
-                    oscillator.frequency.setValueAtTime(120 + Math.random() * 80, audioContext.currentTime);
+                    oscillator.frequency.setValueAtTime(100 + Math.random() * 50, audioContext.currentTime);
                     
                     gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.08);
                     
                     oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.05);
+                    oscillator.stop(audioContext.currentTime + 0.08);
                 } catch (e) {
-                    console.log('Audio context error:', e);
+                    console.log('Sound error:', e);
                 }
             }
             
             var timer = setInterval(function() {
                 var current = str.substr(progress, 1);
+                var nextChar = str.substr(progress + 1, 1);
+                
                 if (current == '<') {
                     progress = str.indexOf('>', progress) + 1;
                 } else {
                     progress++;
-                    // Play sound only for visible characters (not HTML tags)
-                    if (current !== '>' && current.trim() !== '') {
+                    // Play sound for visible characters (not spaces, not HTML tags)
+                    if (current !== ' ' && current !== '>' && current !== '\n' && current !== '<') {
                         playTypeSound();
                     }
                 }
-                $ele.html(str.substring(0, progress) + (progress & 1 ? '_' : ''));
+                
+                // Update content with cursor
+                $ele.html(str.substring(0, progress) + (progress < str.length ? '_' : ''));
+                
                 if (progress >= str.length) {
                     clearInterval(timer);
+                    // Remove cursor when finished
+                    $ele.html(str);
                 }
             }, 75);
         });
